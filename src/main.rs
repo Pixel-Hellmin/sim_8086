@@ -5,6 +5,10 @@ fn main() {
         .expect("Error reading loading bytes");
 
     for byte in loaded_bytes {
-        println!("{byte}");
+        println!("Byte {}", byte);
+        for bit in 0..8 {
+            let bit_value = (byte >> bit) & 1;
+            println!("Bit {} is {}", bit, bit_value);
+        }
     }
 }
