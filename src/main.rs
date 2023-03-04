@@ -18,7 +18,7 @@ fn main() {
     let loaded_bytes: Vec<u8> = fs::read(&args[1])
         .expect("Error reading file");
 
-    let mut result = String::from("bits 16\n\n");
+    println!("bits 16\n");
 
     for instruction in (0..loaded_bytes.len()).step_by(2) {
         let first_byte = loaded_bytes[instruction];
@@ -39,22 +39,9 @@ fn main() {
         } 
 
         if d == 0b00000001 {
-            result += &format!("{} {}, {}\n", op, REGISTER_TABLE[reg as usize][w as usize], REGISTER_TABLE[r_m as usize][w as usize]);
+            println!("{} {}, {}", op, REGISTER_TABLE[reg as usize][w as usize], REGISTER_TABLE[r_m as usize][w as usize]);
         } else {
-            result += &format!("{} {}, {}\n", op, REGISTER_TABLE[r_m as usize][w as usize], REGISTER_TABLE[reg as usize][w as usize]);
+            println!("{} {}, {}", op, REGISTER_TABLE[r_m as usize][w as usize], REGISTER_TABLE[reg as usize][w as usize]);
         }
-
-        /* DEBUG: print bits
-        for bit in 0..8 {
-            let bit_value = (first_byte >> bit) & 1;
-            println!("Bit {} is {}", bit, bit_value);
-        }
-        for bit in 0..8 {
-            let bit_value = (second_byte >> bit) & 1;
-            println!("Bit {} is {}", bit, bit_value);
-        }
-        */
     }
-
-    println!("{}", result);
 }
