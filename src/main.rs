@@ -1,7 +1,7 @@
 use std::env;
 use std::fs;
 
-static REGISTER_TABLE:[[&str; 2]; 8] = [
+const REGISTER_TABLE:[[&str; 2]; 8] = [
     ["al", "ax"],
     ["cl", "cx"],
     ["dl", "dx"],
