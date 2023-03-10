@@ -24,7 +24,6 @@ const REG_MEM_11:[[&str; 2]; 8] = [
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-
     let loaded_bytes: Vec<u8> = fs::read(&args[1])
         .expect("Error reading file");
 
@@ -34,20 +33,22 @@ fn main() {
     while index < loaded_bytes.len() {
         let mut index_increment = 0;
 
-        let first_byte = loaded_bytes[index];
-        let second_byte = loaded_bytes[index+1];
+        let instruction_byte = loaded_bytes[index];
         let op = "mov";
         let w;
         let reg;
 
-        if (first_byte >> 2) & 0b00111111 == 34 {
+        if (instruction_byte >> 2) & 0b00111111 == 34 {
             // NOTE(Fermin): [100010 d w]
             index_increment += 2;
-            w = first_byte & 0b00000001;
+
+            let second_byte = loaded_bytes[index+1];
+            w = instruction_byte & 0b00000001;
             reg = (second_byte >> 3) & 0b00000111;
-            let d = (first_byte >> 1) & 0b00000001; 
+            let d = (instruction_byte >> 1) & 0b00000001; 
             let mod_field = (second_byte >> 6) & 0b00000011;
             let r_m = second_byte & 0b00000111;
+
             let r_m_value:String = match mod_field { 
                 0 => {
                     if r_m == 6 {
@@ -70,8 +71,8 @@ fn main() {
                 3 => {
                     REG_MEM_11[r_m as usize][w as usize].to_string()
                 },
-                _ => {
-                    "invalid mod value".to_string()
+                other => {
+                    panic!("Invalid mod value: {}", other)
                 },
             };
 
@@ -80,10 +81,13 @@ fn main() {
             } else {
                 output += &format!("{} {}, {}\n", op, r_m_value, REG_MEM_11[reg as usize][w as usize]);
             }
-        } else if (first_byte >> 4) & 0b00001111 == 11 {
+
+        } else if (instruction_byte >> 4) & 0b00001111 == 11 {
             // NOTE(Fermin): [1011 w reg]
-            w = (first_byte >> 3) & 0b00000001;
-            reg = first_byte & 0b00000111;
+
+            w = (instruction_byte >> 3) & 0b00000001;
+            reg = instruction_byte & 0b00000111;
+
             let immediate_value:i16 = match w {
                 0 => {
                     index_increment += 2;
@@ -93,9 +97,11 @@ fn main() {
                     index_increment += 3;
                     ((loaded_bytes[index+2] as i16) << 8) | (loaded_bytes[index+1] as i16)
                 },
-                _ => panic!("Impossible W value")
+                other => panic!("Invalid w value: {}", other)
             };
+
             output += &format!("{} {}, {}\n", op, REG_MEM_11[reg as usize][w as usize], immediate_value);
+
         } else {
             panic!("Unrecognized operation");
         }
