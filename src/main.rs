@@ -22,6 +22,9 @@ const REG_MEM_11:[[&str; 2]; 8] = [
     ["bh", "di"],
 ];
 
+const MOV_REG_MEM_TO_FRO_MEM: (u8, u8) = (0b00100010, 2);
+const MOV_IMM_TO_REG: (u8, u8) = (0b00001011, 4);
+
 fn main() {
     let args: Vec<String> = env::args().collect();
     let loaded_bytes: Vec<u8> = fs::read(&args[1])
@@ -38,8 +41,7 @@ fn main() {
         let w;
         let reg;
 
-        if (instruction_byte >> 2) & 0b00111111 == 34 {
-            // NOTE(Fermin): [100010 d w]
+        if (instruction_byte >> MOV_REG_MEM_TO_FRO_MEM.1) == MOV_REG_MEM_TO_FRO_MEM.0 {
             index_increment += 2;
 
             let second_byte = loaded_bytes[index+1];
@@ -82,9 +84,7 @@ fn main() {
                 output += &format!("{} {}, {}\n", op, r_m_value, REG_MEM_11[reg as usize][w as usize]);
             }
 
-        } else if (instruction_byte >> 4) & 0b00001111 == 11 {
-            // NOTE(Fermin): [1011 w reg]
-
+        } else if (instruction_byte >> MOV_IMM_TO_REG.1) == MOV_IMM_TO_REG.0 {
             w = (instruction_byte >> 3) & 0b00000001;
             reg = instruction_byte & 0b00000111;
 
