@@ -1,34 +1,57 @@
-first byte:
-----
-high 6 bits:
-100010 = mov
-bit 1:
-	determines which reg is the destination and which the src.
-	if d bit is 1, reg register is dest
-	if d bit is 0, reg register is the src
-d
-bit 0:
-	When the w bit is 0, it means the mov will copy 8 bits.
-	If the w bit is 1, it means the mov will copy 16 bits.
-	Well, in addition to naming the entire 16-bit register with ax,
-	bx, and so on, you can also refer just to the high 8 or
-	low 8 bits of a register using “l” and “h”.
-w
+-------------------------------------------------------------------------------
+instruction: [1011 w reg]
+    [1Byte   ][2Byte   ][3Byte   ]
+    [op  WReg][DL      ][DH      ]
+    [6   13  ][8       ][8       ]
+-------------------------------------------------------------------------------
 
-second byte:
-----
-hight 2 bits:
-mod field
-	specifies if mov is between two registers or registers and memory.
-	We only care about reg-reg moves, 1 1 is the code for reg to reg move.
-bits 5, 4, 3
-	The three-bit reg and r/m fields encode the two
-	registers involved in the move.
-	p 162, intel 8086 manual
-reg field
-bits 2, 1, 0:
-	The three-bit reg and r/m fields encode the two
-	registers involved in the move.
-	by process of elimination, whichever one the reg(d)
-	register is not, the r/m register is.
-r/m field
+
+-------------------------------------------------------------------------------
+instruction: [100010 d w]
+    [1Byte   ][2Byte   ]([3Byte   ][4Byte   ])
+    [op    DW][ModRegRm]([DL      ][DH      ])
+    [6     11][2  3  3 ]([8       ][8       ])
+
+1Byte:
+    ----
+    high 6 bits:
+    op
+    100010 = mov
+
+    bit 1:
+    d
+        determines which reg is the destination and which the src.
+        if d bit is 1, reg register is dest
+        if d bit is 0, reg register is the src
+
+    bit 0:
+    w
+        When the w bit is 0, it means the mov will copy 8 bits.
+        If the w bit is 1, it means the mov will copy 16 bits.
+        Well, in addition to naming the entire 16-bit register with ax,
+        bx, and so on, you can also refer just to the high 8 or
+        low 8 bits of a register using “l” and “h”.
+
+2Byte:
+    ----
+    hight 2 bits:
+    mod field
+        specifies if mov is between two registers or registers and memory.
+        If b00(d0) we generaly dont have displacement, [r/m], if r/m = b110 it has a 16 bit displacement
+        if b01(d1) we have one extra byte [DL], involves mem and 8bit displacement [r/m + b8]
+        if b10(d2) we have two extra byte [DL][DH], involves mem and 16 bit displacement [r/m + b16]
+        If b11(d3) we dont have extra bytes, register to register
+
+    bits 5, 4, 3:
+    reg field
+        The three-bit reg and r/m fields encode the two
+        registers involved in the move.
+        p 162, intel 8086 manual
+
+    bits 2, 1, 0:
+    r/m field
+        The three-bit reg and r/m fields encode the two
+        registers involved in the move.
+        by process of elimination, whichever one the reg(d)
+        register is not, the r/m register is.
+-------------------------------------------------------------------------------
