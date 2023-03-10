@@ -18,7 +18,7 @@ fn main() {
     let loaded_bytes: Vec<u8> = fs::read(&args[1])
         .expect("Error reading file");
 
-    println!("bits 16\n");
+    let mut output = String::from("bits 16\n\n");
 
     let mut index = 0;
     while index < loaded_bytes.len() {
@@ -59,11 +59,13 @@ fn main() {
         } 
 
         if d == 0b00000001 {
-            println!("{} {}, {}", op, REGISTER_TABLE[reg as usize][w as usize], REGISTER_TABLE[r_m as usize][w as usize]);
+            output += &format!("{} {}, {}\n", op, REGISTER_TABLE[reg as usize][w as usize], REGISTER_TABLE[r_m as usize][w as usize]);
         } else {
-            println!("{} {}, {}", op, REGISTER_TABLE[r_m as usize][w as usize], REGISTER_TABLE[reg as usize][w as usize]);
+            output += &format!("{} {}, {}\n", op, REGISTER_TABLE[r_m as usize][w as usize], REGISTER_TABLE[reg as usize][w as usize]);
         }
 
         index += index_increment;
     }
+
+    println!("{}", output);
 }
