@@ -45,14 +45,14 @@ fn main() {
             index_increment += 2;
 
             let second_byte = loaded_bytes[index+1];
-            w = instruction_byte & 0b00000001;
-            reg = (second_byte >> 3) & 0b00000111;
-            let d = (instruction_byte >> 1) & 0b00000001; 
-            let mod_field = (second_byte >> 6) & 0b00000011;
-            let r_m = second_byte & 0b00000111;
+            w = instruction_byte & 0b1;
+            reg = (second_byte >> 3) & 0b111;
+            let d = (instruction_byte >> 1) & 0b1; 
+            let mod_field = (second_byte >> 6) & 0b11;
+            let r_m = second_byte & 0b111;
 
             let r_m_value:String = match mod_field { 
-                0 => {
+                0b00 => {
                     if r_m == 6 {
                         index_increment += 2;
                         "DIRECT ACCESS".to_string()
@@ -61,16 +61,16 @@ fn main() {
                         format!("[{}]", REG_MEM_00_01_10[r_m as usize])
                     }
                 },
-                1 => {
+                0b01 => {
                     index_increment += 1;
                     format!("[{} + {}]", REG_MEM_00_01_10[r_m as usize], loaded_bytes[index+2])
                 },
-                2 => {
+                0b10 => {
                     index_increment += 2;
                     let value:i16 = ((loaded_bytes[index+3] as i16) << 8) | ((loaded_bytes[index+2] as i16));
                     format!("[{} + {}]", REG_MEM_00_01_10[r_m as usize], value)
                 },
-                3 => {
+                0b11 => {
                     REG_MEM_11[r_m as usize][w as usize].to_string()
                 },
                 other => {
@@ -78,22 +78,22 @@ fn main() {
                 },
             };
 
-            if d == 0b00000001 {
+            if d == 0b1 {
                 output += &format!("{} {}, {}\n", op, REG_MEM_11[reg as usize][w as usize], r_m_value);
             } else {
                 output += &format!("{} {}, {}\n", op, r_m_value, REG_MEM_11[reg as usize][w as usize]);
             }
 
         } else if (instruction_byte >> MOV_IMM_TO_REG.1) == MOV_IMM_TO_REG.0 {
-            w = (instruction_byte >> 3) & 0b00000001;
-            reg = instruction_byte & 0b00000111;
+            w = (instruction_byte >> 3) & 0b1;
+            reg = instruction_byte & 0b111;
 
             let immediate_value:i16 = match w {
-                0 => {
+                0b0 => {
                     index_increment += 2;
                     loaded_bytes[index+1] as i16
                 },
-                1 => {
+                0b1 => {
                     index_increment += 3;
                     ((loaded_bytes[index+2] as i16) << 8) | (loaded_bytes[index+1] as i16)
                 },
